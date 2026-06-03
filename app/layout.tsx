@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { PublicShell } from "@/components/layout/PublicShell";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -17,9 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} font-sans bg-road text-foreground antialiased`}>
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
+        <PublicShell>{children}</PublicShell>
       </body>
     </html>
   );

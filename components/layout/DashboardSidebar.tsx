@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/lib/hooks/useAuth";
 import {
   LayoutDashboard, Bike, CalendarCheck, Users, BarChart2,
   Settings, ChevronLeft, ChevronRight, LogOut, Bike as BikeIcon,
@@ -25,6 +26,13 @@ const navItems = [
 export function DashboardSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/auth/login");
+  };
 
   return (
     <aside
@@ -78,10 +86,12 @@ export function DashboardSidebar() {
       {/* Sign out */}
       <div className="border-t border-border p-2">
         <button
+          onClick={handleSignOut}
           className={cn(
-            "flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-surface-2 hover:text-foreground transition-colors",
+            "flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-red-500/10 hover:text-red-400 transition-colors",
             collapsed && "justify-center"
           )}
+          title={collapsed ? "Sign out" : undefined}
         >
           <LogOut className="h-5 w-5 flex-shrink-0" />
           {!collapsed && <span>Sign out</span>}
