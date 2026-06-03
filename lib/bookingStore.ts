@@ -1,4 +1,5 @@
 import type { Booking } from "@/types";
+import { addNotification } from "@/lib/notificationStore";
 
 const BOOKINGS_KEY = "rnr_bookings";
 const PROFILE_KEY = "rnr_renter_profile";
@@ -36,6 +37,15 @@ export function createRenterBooking(
   };
   const existing = getRenterBookings();
   localStorage.setItem(BOOKINGS_KEY, JSON.stringify([booking, ...existing]));
+
+  const bikeName = data.bike ? `${data.bike.brand} ${data.bike.model}` : "your bike";
+  addNotification({
+    type: "booking_submitted",
+    title: "Booking submitted",
+    message: `Your booking for ${bikeName} is pending agency confirmation.`,
+    booking_id: booking.id,
+  });
+
   return booking;
 }
 

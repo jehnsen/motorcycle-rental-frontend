@@ -11,6 +11,7 @@ import { RatingStars } from "@/components/shared/RatingStars";
 import { AgencyCard } from "@/components/marketplace/AgencyCard";
 import { BookingWidget } from "@/components/marketplace/BookingWidget";
 import { BikeCard } from "@/components/marketplace/BikeCard";
+import { BikeReviewsSection } from "@/components/marketplace/BikeReviewsSection";
 import { createBuildClient } from "@/lib/supabase/build-client";
 import { formatPrice, getInitials } from "@/lib/utils";
 import type { Bike } from "@/types";
@@ -174,24 +175,11 @@ export default async function BikeDetailPage({ params }: Props) {
           <Separator />
           <div>
             <h2 className="text-xl font-bold mb-4">Reviews</h2>
-            <div className="flex items-center gap-6 mb-6">
-              <div className="text-center">
-                <p className="text-5xl font-black">{(bike.rating ?? 0).toFixed(1)}</p>
-                <RatingStars rating={bike.rating ?? 0} size="md" className="mt-1 justify-center" />
-                <p className="text-xs text-muted-foreground mt-1">{bike.total_reviews ?? 0} reviews</p>
-              </div>
-              <div className="flex-1 space-y-2">
-                {[5,4,3,2,1].map((stars) => (
-                  <div key={stars} className="flex items-center gap-2">
-                    <span className="text-xs w-2">{stars}</span>
-                    <div className="flex-1 h-1.5 rounded-full bg-surface-3 overflow-hidden">
-                      <div className="h-full bg-amber-400 rounded-full" style={{ width: stars === 5 ? "65%" : stars === 4 ? "20%" : stars === 3 ? "10%" : "5%" }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground">Reviews from verified renters will appear here.</p>
+            <BikeReviewsSection
+              bikeId={bike.id}
+              staticRating={bike.rating ?? 0}
+              staticTotal={bike.total_reviews ?? 0}
+            />
           </div>
 
           {/* Similar bikes */}

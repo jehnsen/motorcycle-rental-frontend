@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, Bike } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/shared/NotificationBell";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -49,6 +50,7 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          <NotificationBell />
           <Button variant="outline" size="sm" asChild>
             <Link href="/auth/login">Log in</Link>
           </Button>

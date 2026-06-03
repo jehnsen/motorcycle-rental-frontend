@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
-import { Calendar, MapPin, Shield, ChevronLeft, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Shield, ChevronLeft, Loader2, Tag, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice, calculateRentalDays, getBikeTypeLabel } from "@/lib/utils";
 import { createRenterBooking } from "@/lib/bookingStore";
+import { validatePromo, applyDiscount, type PromoCode } from "@/lib/promoStore";
 import type { Bike } from "@/types";
 
 interface Props {
@@ -20,13 +21,29 @@ interface Props {
 export function BookingConfirmClient({ bike, from, to }: Props) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
 
   const days = calculateRentalDays(`${from}T00:00:00`, `${to}T00:00:00`);
   const subtotal = bike.daily_rate * days;
-  const total = subtotal + bike.deposit_amount;
+  const discount = appliedPromo ? applyDiscount(subtotal, appliedPromo) : 0;
+  const discountedSubtotal = subtotal - discount;
+  const total = discountedSubtotal + bike.deposit_amount;
 
   const fromDate = parseISO(from);
   const toDate = parseISO(to);
+
+  function handleApplyPromo() {
+    setPromoError(null);
+    const result = validatePromo(promoInput, days, subtotal);
+    if (result.valid && result.promo) {
+      setAppliedPromo(result.promo);
+    } else {
+      setPromoError(result.error ?? "Invalid code.");
+      setAppliedPromo(null);
+    }
+  }
 
   function handleConfirm() {
     setConfirming(true);
@@ -82,7 +99,6 @@ export function BookingConfirmClient({ bike, from, to }: Props) {
 
         <Separator />
 
-        {/* Dates */}
         <div className="flex items-center gap-3">
           <Calendar className="h-4 w-4 text-brand flex-shrink-0" />
           <div className="text-sm">
@@ -94,6 +110,49 @@ export function BookingConfirmClient({ bike, from, to }: Props) {
         </div>
       </div>
 
+      {/* Promo code */}
+      <div className="rounded-xl border border-border bg-surface p-4 mb-4 space-y-3">
+        <p className="text-sm font-medium flex items-center gap-2">
+          <Tag className="h-4 w-4 text-brand" /> Promo Code
+        </p>
+        {appliedPromo ? (
+          <div className="flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5">
+            <div className="flex items-center gap-2 text-sm text-emerald-400">
+              <CheckCircle2 className="h-4 w-4" />
+              <span className="font-mono font-bold">{appliedPromo.code}</span>
+              <span>
+                — {appliedPromo.discount_type === "percent"
+                  ? `${appliedPromo.discount_value}% off`
+                  : `${formatPrice(appliedPromo.discount_value)} off`}
+              </span>
+            </div>
+            <button
+              onClick={() => { setAppliedPromo(null); setPromoInput(""); }}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Remove
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <input
+              value={promoInput}
+              onChange={(e) => { setPromoInput(e.target.value.toUpperCase()); setPromoError(null); }}
+              placeholder="Enter code"
+              className="flex-1 rounded-lg border border-border bg-surface-3 px-4 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand font-mono"
+            />
+            <Button variant="outline" size="sm" onClick={handleApplyPromo} disabled={!promoInput.trim()}>
+              Apply
+            </Button>
+          </div>
+        )}
+        {promoError && (
+          <div className="flex items-center gap-2 text-xs text-red-400">
+            <AlertCircle className="h-3.5 w-3.5" /> {promoError}
+          </div>
+        )}
+      </div>
+
       {/* Price breakdown */}
       <div className="rounded-xl border border-border bg-surface p-5 space-y-3 mb-4">
         <h3 className="font-semibold text-sm">Price breakdown</h3>
@@ -103,6 +162,12 @@ export function BookingConfirmClient({ bike, from, to }: Props) {
           </span>
           <span>{formatPrice(subtotal)}</span>
         </div>
+        {appliedPromo && (
+          <div className="flex justify-between text-sm text-emerald-400">
+            <span>Promo discount ({appliedPromo.code})</span>
+            <span>−{formatPrice(discount)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Refundable security deposit</span>
           <span>{formatPrice(bike.deposit_amount)}</span>
@@ -131,10 +196,7 @@ export function BookingConfirmClient({ bike, from, to }: Props) {
         disabled={confirming}
       >
         {confirming ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Confirming…
-          </>
+          <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Confirming…</>
         ) : (
           "Confirm Booking Request"
         )}

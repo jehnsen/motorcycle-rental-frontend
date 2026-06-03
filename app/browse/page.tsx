@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { SlidersHorizontal, ArrowUpDown } from "lucide-react";
+import Link from "next/link";
+import { SlidersHorizontal, ArrowUpDown, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -27,9 +28,16 @@ export default function BrowsePage() {
 
   return (
     <div className="container py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-black mb-2">Browse Bikes</h1>
-        <p className="text-muted-foreground">Find the perfect motorcycle for your next ride</p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black mb-2">Browse Bikes</h1>
+          <p className="text-muted-foreground">Find the perfect motorcycle for your next ride</p>
+        </div>
+        <Button asChild variant="outline" size="sm" className="gap-2 flex-shrink-0">
+          <Link href="/browse/map">
+            <Map className="h-4 w-4" /> Map View
+          </Link>
+        </Button>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">

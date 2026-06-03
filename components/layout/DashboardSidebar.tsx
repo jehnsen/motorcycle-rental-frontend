@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Bike, CalendarCheck, Users, BarChart2,
   Settings, ChevronLeft, ChevronRight, LogOut, Bike as BikeIcon,
+  Tag, CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,9 @@ const navItems = [
   { href: "/dashboard/fleet", label: "Fleet", icon: Bike },
   { href: "/dashboard/bookings", label: "Bookings", icon: CalendarCheck },
   { href: "/dashboard/renters", label: "Renters", icon: Users },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart2 },
+  { href: "/dashboard/pricing", label: "Pricing", icon: CalendarDays },
+  { href: "/dashboard/promos", label: "Promo Codes", icon: Tag },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 

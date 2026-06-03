@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
-import { CheckCircle2, Calendar, MapPin, Clock, ArrowRight, Bike as BikeIcon } from "lucide-react";
+import { CheckCircle2, Calendar, MapPin, Clock, ArrowRight, Bike as BikeIcon, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getRenterBookings } from "@/lib/bookingStore";
@@ -158,6 +158,14 @@ export default function BookingReceiptPage({
           <Link href="/account/bookings">
             View My Bookings <ArrowRight className="h-4 w-4" />
           </Link>
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          className="w-full gap-2"
+          onClick={() => window.open(`/booking/${booking.id}/invoice`, "_blank")}
+        >
+          <FileText className="h-4 w-4" /> Download Invoice
         </Button>
         <Button asChild variant="outline" size="lg" className="w-full">
           <Link href="/browse">Browse More Bikes</Link>

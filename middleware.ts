@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
 
-const PROTECTED_PATHS = ["/dashboard", "/account"];
+const PROTECTED_PATHS = ["/dashboard", "/account", "/admin"];
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
@@ -31,5 +31,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/account/:path*"],
+  matcher: ["/dashboard/:path*", "/account/:path*", "/admin/:path*"],
 };

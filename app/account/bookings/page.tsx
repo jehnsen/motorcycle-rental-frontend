@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { format, parseISO } from "date-fns";
-import { Calendar, MapPin, Bike as BikeIcon, X, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Bike as BikeIcon, X, ArrowRight, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getRenterBookings, cancelRenterBooking } from "@/lib/bookingStore";
+import { hasReviewed } from "@/lib/reviewStore";
+import { ReviewModal } from "@/components/booking/ReviewModal";
 import { formatPrice, getStatusColor } from "@/lib/utils";
 import type { Booking, BookingStatus } from "@/types";
 
@@ -21,6 +23,7 @@ const STATUS_TABS: { label: string; value: BookingStatus | "all" }[] = [
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [activeTab, setActiveTab] = useState<BookingStatus | "all">("all");
+  const [reviewTarget, setReviewTarget] = useState<Booking | null>(null);
 
   function loadBookings() {
     setBookings(getRenterBookings());
@@ -137,23 +140,55 @@ export default function MyBookingsPage() {
                   )}
                 </div>
 
-                {canCancel && (
-                  <div className="flex justify-end pt-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-red-400 border-red-500/30 hover:bg-red-500/10 hover:text-red-300 gap-1.5"
-                      onClick={() => handleCancel(booking.id)}
-                    >
-                      <X className="h-3.5 w-3.5" />
-                      Cancel Booking
-                    </Button>
+                {(canCancel || booking.status === "completed") && (
+                  <div className="flex justify-end gap-2 pt-1">
+                    {booking.status === "completed" && !hasReviewed(booking.id) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1.5 text-amber-400 border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-300"
+                        onClick={() => setReviewTarget(booking)}
+                      >
+                        <Star className="h-3.5 w-3.5" />
+                        Write Review
+                      </Button>
+                    )}
+                    {booking.status === "completed" && hasReviewed(booking.id) && (
+                      <span className="text-xs text-muted-foreground self-center">Reviewed ✓</span>
+                    )}
+                    {canCancel && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-400 border-red-500/30 hover:bg-red-500/10 hover:text-red-300 gap-1.5"
+                        onClick={() => handleCancel(booking.id)}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        Cancel Booking
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>
             );
           })}
         </div>
+      )}
+
+      {reviewTarget && (
+        <ReviewModal
+          open={!!reviewTarget}
+          onClose={() => setReviewTarget(null)}
+          booking={{
+            id: reviewTarget.id,
+            bike_id: reviewTarget.bike_id,
+            agency_id: reviewTarget.agency_id,
+            bike_name: reviewTarget.bike
+              ? `${reviewTarget.bike.year} ${reviewTarget.bike.brand} ${reviewTarget.bike.model}`
+              : "Bike",
+          }}
+          onSubmitted={loadBookings}
+        />
       )}
     </div>
   );
